@@ -9,14 +9,14 @@ namespace MonoFlash.Display
     abstract class DisplayObject : EventDispatcher
     {
         public Vector2 pos, scale;
-
         public float x { get { return pos.X; } set { pos.X = value; } }
         public float y { get { return pos.Y; } set { pos.Y = value; } }
         public float scaleX { get { return scale.X; } set { scale.X = value; } }
         public float scaleY { get { return scale.Y; } set { scale.Y = value; } }
-
         public float width, height;
-        public float rotation;
+        public float rotation   = 0f;
+        //public float alpha      = 1f;
+        public bool isVisible   = true;
 
         public Stage stage;
         public Sprite parent;
@@ -56,6 +56,10 @@ namespace MonoFlash.Display
 
         public virtual void render(SpriteBatch spriteBatch)
         {
+            if (!isVisible)
+            {
+                return;
+            }
             dispatchEvent(new Event(Event.ENTER_FRAME));
         }
 

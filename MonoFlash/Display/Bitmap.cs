@@ -26,6 +26,10 @@ namespace MonoFlash.Display
 
         public override void render(SpriteBatch spriteBatch)
         {
+            if (!isVisible)
+            {
+                return;
+            }
             Vector2 pos, scale;
             float rot;
 

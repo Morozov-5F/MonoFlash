@@ -18,6 +18,10 @@ namespace MonoFlash.Display
 
         public override void render(SpriteBatch spriteBatch)
         {
+            if (!isVisible)
+            {
+                return;
+            }
             foreach(DisplayObject child in children)
             {
                 child.applyTransformMatrix(TransformMatrix);
