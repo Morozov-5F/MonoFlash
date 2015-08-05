@@ -2,14 +2,23 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
-    abstract class DisplayObject
+    abstract class DisplayObject : EventDispatcher
     {
         public Vector2 pos, scale;
-        public int width, height;
+
+        public float x { get { return pos.X; } set { pos.X = value; } }
+        public float y { get { return pos.Y; } set { pos.Y = value; } }
+        public float scaleX { get { return scale.X; } set { scale.X = value; } }
+        public float scaleY { get { return scale.Y; } set { scale.Y = value; } }
+
+        public float width, height;
         public float rotation;
+
+        public Stage stage;
         public Sprite parent;
 
         protected Matrix transformMatrix;
@@ -29,12 +38,33 @@ namespace MonoFlash.Display
             }
         }
 
-        abstract public void Draw(SpriteBatch spriteBatch);
-        public void ApplyTransformMatrix(Matrix parentMatrix)
+
+        public DisplayObject()
+        {
+            pos = Vector2.Zero;
+            scale = Vector2.One;
+            width = 0f;
+            height = 0f;
+
+            addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+        }
+
+        private void onAddedToStage(Event e)
+        {
+            stage = parent.stage;
+        }
+
+        public virtual void render(SpriteBatch spriteBatch)
+        {
+            dispatchEvent(new Event(Event.ENTER_FRAME));
+        }
+
+        public void applyTransformMatrix(Matrix parentMatrix)
         {
             TransformMatrix *= parentMatrix;
         }
-        public static void DecomposeMatrix(ref Matrix matrix, out Vector2 position, out float rotation, out Vector2 scale)
+
+        public static void decomposeMatrix(ref Matrix matrix, out Vector2 position, out float rotation, out Vector2 scale)
         {
             Vector3 position3, scale3;
             Quaternion rotationQ;

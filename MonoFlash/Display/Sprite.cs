@@ -3,50 +3,57 @@ using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
     class Sprite : DisplayObject
     {
-        public HashSet<DisplayObject> children;
+        public List<DisplayObject> children;
 
         public Sprite()
         {
-            children = new HashSet<DisplayObject>();
-            scale = Vector2.One;
+            children = new List<DisplayObject>();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void render(SpriteBatch spriteBatch)
         {
-            foreach(var currentChild in children)
+            foreach(DisplayObject child in children)
             {
-                if (currentChild == null)
-                    continue;
-
-                currentChild.ApplyTransformMatrix(TransformMatrix);
-                currentChild.Draw(spriteBatch);
+                child.applyTransformMatrix(TransformMatrix);
+                child.render(spriteBatch);
             }
+            base.render(spriteBatch);
         }
 
-        public DisplayObject AddChild(DisplayObject obj)
+        public bool addChild(DisplayObject child)
         {
-            if (!children.Add(obj) || obj == this)
+            if (child == null || child.parent != null)
             {
-                return null;
+                return false;
             }
-            obj.parent = this;
-            return obj;
+            children.Add(child);
+            child.parent = this;
+            child.stage = stage;
+            child.dispatchEvent(new Event(Event.ADDED_TO_STAGE));
+            return true;
         }
 
-        public DisplayObject RemoveChild(DisplayObject obj)
+        public bool removeChild(Sprite child)
         {
-            if (!children.Contains(obj))
+            if (child.parent == null)
             {
-                return null;
+                return false;
             }
-            children.Remove(obj);
-            obj.parent = null;
-            return obj;
+            if (child.parent != this)
+            {
+                return false;
+            }
+            child.parent = null;
+            child.stage = null;
+            children.Remove(child);
+            child.dispatchEvent(new Event(Event.REMOVED_FROM_STAGE));
+            return true;
         }
     }
 }
