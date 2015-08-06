@@ -20,33 +20,30 @@ class GameMain : Sprite
     private Sprite sprite;
     public GameMain()
     {
-        addEventListener(Event.ADDED_TO_STAGE, initialize);
+        AddEventListener(Event.ADDED_TO_STAGE, Initialize);
     }
 
-    private void initialize(Event e)
+    private void Initialize(Event e)
     {
-        removeEventListener(Event.ADDED_TO_STAGE, initialize);
+        RemoveEventListener(Event.ADDED_TO_STAGE, Initialize);
 
-        BitmapData texture = Assets.getBitmapData("test");
+        BitmapData texture = Assets.GetBitmapData("test");
         Bitmap bitmap = new Bitmap(texture);
         // Center bitmap
-        bitmap.x = -bitmap.width / 2f;
-        bitmap.y = -bitmap.height / 2f;
+        bitmap.X = -bitmap.width / 2f;
+        bitmap.Y = -bitmap.height / 2f;
 
         sprite = new Sprite();
-        addChild(sprite);
-        sprite.addChild(bitmap);
+        AddChild(sprite);
+        sprite.AddChild(bitmap);
 
-        // Center sprite
-        sprite.x = stage.stageWidth / 2f;
-        sprite.y = stage.stageHeight / 2f;
-        // Scale sprite
-        sprite.scale = new Vector2(2f);
+        sprite.X = stage.stageWidth / 2f;
+        sprite.Y = stage.stageHeight / 2f;
 
-        addEventListener(Event.ENTER_FRAME, update);
+        AddEventListener(Event.ENTER_FRAME, Update);
     }
 
-    private void update(Event e)
+    private void Update(Event e)
     {
         sprite.rotation++;
     }
