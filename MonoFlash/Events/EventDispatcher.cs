@@ -16,7 +16,7 @@ namespace MonoFlash.Events
             handlers = new Dictionary<string, List<EventHandler>>();
         }
 
-        public void addEventListener(String eventType, EventHandler handlerFunction)
+        public void AddEventListener(String eventType, EventHandler handlerFunction)
         {
             if (!handlers.ContainsKey(eventType))
             {
@@ -25,7 +25,7 @@ namespace MonoFlash.Events
             handlers[eventType].Add(handlerFunction);
         }
 
-        public void removeEventListener(String eventType, EventHandler handlerFunction)
+        public void RemoveEventListener(String eventType, EventHandler handlerFunction)
         {
             if (!handlers.ContainsKey(eventType))
             {
@@ -34,7 +34,7 @@ namespace MonoFlash.Events
             handlers[eventType].Remove(handlerFunction);
         }
 
-        public void dispatchEvent(Event e)
+        public void DispatchEvent(Event e)
         {
             if (!handlers.ContainsKey(e.type))
             {
