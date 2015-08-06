@@ -62,7 +62,9 @@ namespace MonoFlash.Display
             }
             dispatchEvent(new Event(Event.ENTER_FRAME));
         }
-
+        
+        public abstract Vector4 GetBounds();
+        
         public void applyTransformMatrix(Matrix parentMatrix)
         {
             TransformMatrix *= parentMatrix;
