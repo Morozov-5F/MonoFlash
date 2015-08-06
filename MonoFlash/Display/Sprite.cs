@@ -16,21 +16,22 @@ namespace MonoFlash.Display
             children = new List<DisplayObject>();
         }
 
-        public override void render(SpriteBatch spriteBatch)
+        public override void Render(SpriteBatch spriteBatch)
         {
             if (!isVisible)
             {
                 return;
             }
-            foreach(DisplayObject child in children)
+            absoluteAlpha = parent.alpha * alpha;
+            foreach (DisplayObject child in children)
             {
-                child.applyTransformMatrix(TransformMatrix);
-                child.render(spriteBatch);
+                child.ApplyTransformMatrix(TransformMatrix);
+                child.Render(spriteBatch);
             }
-            base.render(spriteBatch);
+            base.Render(spriteBatch);
         }
 
-        public bool addChild(DisplayObject child)
+        public bool AddChild(DisplayObject child)
         {
             if (child == null || child.parent != null)
             {
@@ -39,12 +40,12 @@ namespace MonoFlash.Display
             children.Add(child);
             child.parent = this;
             child.stage = stage;
-            child.dispatchEvent(new Event(Event.ADDED_TO_STAGE));
+            child.DispatchEvent(new Event(Event.ADDED_TO_STAGE));
             GetBounds();
             return true;
         }
 
-        public bool removeChild(Sprite child)
+        public bool RemoveChild(Sprite child)
         {
             if (child.parent == null)
             {
@@ -57,7 +58,7 @@ namespace MonoFlash.Display
             child.parent = null;
             child.stage = null;
             children.Remove(child);
-            child.dispatchEvent(new Event(Event.REMOVED_FROM_STAGE));
+            child.DispatchEvent(new Event(Event.REMOVED_FROM_STAGE));
             GetBounds();
             return true;
         }
@@ -75,10 +76,10 @@ namespace MonoFlash.Display
                 minY = Math.Min(minY, childBounds.Y);
                 maxY = Math.Max(maxY, childBounds.W);
             }
-            minX += pos.X; maxX += pos.X; minY += pos.Y; maxY += pos.Y;
+            //minX += pos.X; maxX += pos.X; minY += pos.Y; maxY += pos.Y;
             Matrix matrix = new Matrix(new Vector4(minX, minY, 0, 0), new Vector4(maxX, minY, 0, 0),
                                        new Vector4(minX, maxY, 0, 0), new Vector4(maxX, maxY, 0, 0));
-            matrix *=  Matrix.CreateScale(new Vector3(scale, 1)) * Matrix.CreateRotationZ(MathHelper.ToRadians(rotation)) ;
+            matrix *= Matrix.CreateTranslation(pos.X, pos.Y, 0) * Matrix.CreateScale(new Vector3(scale, 1)) * Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
             int i;
             for (i = 1, minX = matrix[0, 0], maxX = matrix[0, 0], minY = matrix[0, 1], maxY = matrix[0, 1]; i < 4; ++i)
             {

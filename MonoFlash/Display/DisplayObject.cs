@@ -9,17 +9,19 @@ namespace MonoFlash.Display
     abstract class DisplayObject : EventDispatcher
     {
         public Vector2 pos, scale;
-        public float x { get { return pos.X; } set { pos.X = value; } }
-        public float y { get { return pos.Y; } set { pos.Y = value; } }
-        public float scaleX { get { return scale.X; } set { scale.X = value; } }
-        public float scaleY { get { return scale.Y; } set { scale.Y = value; } }
-        public float width, height;
+        public float X          { get { return pos.X; }     set { pos.X = value; } }
+        public float Y          { get { return pos.Y; }     set { pos.Y = value; } }
+        public float ScaleX     { get { return scale.X; }   set { scale.X = value; } }
+        public float ScaleY     { get { return scale.Y; }   set { scale.Y = value; } }
+        public int width, height;
         public float rotation   = 0f;
-        //public float alpha      = 1f;
+        public float alpha      = 1f;
         public bool isVisible   = true;
 
         public Stage stage;
         public Sprite parent;
+
+        protected float absoluteAlpha = 1f;
 
         protected Matrix transformMatrix;
         protected Matrix TransformMatrix
@@ -43,34 +45,35 @@ namespace MonoFlash.Display
         {
             pos = Vector2.Zero;
             scale = Vector2.One;
-            width = 0f;
-            height = 0f;
+            width = 0;
+            height = 0;
 
-            addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+            AddEventListener(Event.ADDED_TO_STAGE, AddedToStage);
         }
 
-        private void onAddedToStage(Event e)
+        private void AddedToStage(Event e)
         {
             stage = parent.stage;
         }
 
-        public virtual void render(SpriteBatch spriteBatch)
+        public virtual void Render(SpriteBatch spriteBatch)
         {
             if (!isVisible)
             {
                 return;
             }
-            dispatchEvent(new Event(Event.ENTER_FRAME));
+            absoluteAlpha = alpha * parent.alpha;
+            DispatchEvent(new Event(Event.ENTER_FRAME));
         }
         
         public abstract Vector4 GetBounds();
         
-        public void applyTransformMatrix(Matrix parentMatrix)
+        public void ApplyTransformMatrix(Matrix parentMatrix)
         {
             TransformMatrix *= parentMatrix;
         }
 
-        public static void decomposeMatrix(ref Matrix matrix, out Vector2 position, out float rotation, out Vector2 scale)
+        public static void DecomposeMatrix(ref Matrix matrix, out Vector2 position, out float rotation, out Vector2 scale)
         {
             Vector3 position3, scale3;
             Quaternion rotationQ;

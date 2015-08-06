@@ -33,11 +33,6 @@ namespace MonoFlash
             Assets.content = Content;
         }
 
-        public static void exit()
-        {
-            Application.application.Exit();
-        }
-
         protected override void Initialize()
         {
             base.Initialize();
@@ -49,7 +44,7 @@ namespace MonoFlash
             stage.stageWidth = graphics.GraphicsDevice.Viewport.Width;
             stage.stageHeight = graphics.GraphicsDevice.Viewport.Height;
             stage.stage = stage;
-            stage.addChild(rootSprite);
+            stage.AddChild(rootSprite);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -72,7 +67,7 @@ namespace MonoFlash
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            stage.render(spriteBatch);
+            stage.Render(spriteBatch);
             spriteBatch.End();
             base.Draw(gameTime);
         }
