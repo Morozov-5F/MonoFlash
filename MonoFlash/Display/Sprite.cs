@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoFlash.Events;
+using DeathAboveUs.MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
-    class Sprite : DisplayObject
+    public class Sprite : DisplayObject
     {
         public List<DisplayObject> children;
 
@@ -16,51 +16,37 @@ namespace MonoFlash.Display
             children = new List<DisplayObject>();
         }
 
-        public override void Render(SpriteBatch spriteBatch)
+        public bool AddChild(DisplayObject obj)
         {
-            if (!isVisible)
-            {
-                return;
-            }
-            absoluteAlpha = parent.alpha * alpha;
-            foreach (DisplayObject child in children)
-            {
-                child.ApplyTransformMatrix(TransformMatrix);
-                child.Render(spriteBatch);
-            }
-            base.Render(spriteBatch);
-        }
-
-        public bool AddChild(DisplayObject child)
-        {
-            if (child == null || child.parent != null)
+            if (obj.parent != null)
             {
                 return false;
             }
-            children.Add(child);
-            child.parent = this;
-            child.stage = stage;
-            child.DispatchEvent(new Event(Event.ADDED_TO_STAGE));
-            GetBounds();
+            children.Add(obj);
+            obj.parent = this;
+            obj.DispatchEvent(new Event(Event.ADDED_TO_STAGE));
             return true;
         }
 
-        public bool RemoveChild(Sprite child)
+        public bool RemoveChild(DisplayObject obj)
         {
-            if (child.parent == null)
+            if (!children.Remove(obj))
             {
                 return false;
             }
-            if (child.parent != this)
-            {
-                return false;
-            }
-            child.parent = null;
-            child.stage = null;
-            children.Remove(child);
-            child.DispatchEvent(new Event(Event.REMOVED_FROM_STAGE));
-            GetBounds();
+            obj.parent = null;
+            obj.stage = null;
             return true;
+        }
+
+        public override void Render(SpriteBatch spriteBatch, Matrix transform)
+        {
+            var newTransform = this.transformMatrix * transform;
+            foreach (var currentChild in children)
+            {
+                currentChild.Render(spriteBatch, newTransform);
+            }
+            base.Render(spriteBatch, transform);
         }
 
         public override Vector4 GetBounds()
@@ -77,9 +63,10 @@ namespace MonoFlash.Display
                 maxY = Math.Max(maxY, childBounds.W);
             }
             //minX += pos.X; maxX += pos.X; minY += pos.Y; maxY += pos.Y;
-            Matrix matrix = new Matrix(new Vector4(minX, minY, 0, 0), new Vector4(maxX, minY, 0, 0),
-                                       new Vector4(minX, maxY, 0, 0), new Vector4(maxX, maxY, 0, 0));
-            matrix *= Matrix.CreateTranslation(pos.X, pos.Y, 0) * Matrix.CreateScale(new Vector3(scale, 1)) * Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
+            Matrix matrix = new Matrix(minX, minY, 0, 1, maxX, minY, 0, 1, minX, maxY, 0, 1, maxX, maxY, 0, 1);
+            // TODO: multiplicate by this.transform
+            matrix *= transformMatrix;
+                //Matrix.CreateScale(new Vector3(ScaleX, ScaleY, 1)) * Matrix.CreateRotationZ(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(X, Y, 0) ;
             int i;
             for (i = 1, minX = matrix[0, 0], maxX = matrix[0, 0], minY = matrix[0, 1], maxY = matrix[0, 1]; i < 4; ++i)
             {
@@ -90,9 +77,8 @@ namespace MonoFlash.Display
                 minY = Math.Min(y, minY);
                 maxY = Math.Max(y, maxY);
             }
-            width = (int)Math.Round(maxX - minX, 0);
-            height = (int)Math.Round(maxY - minY, 0);
             return new Vector4(minX, minY, maxX, maxY);
         }
     }
 }
+

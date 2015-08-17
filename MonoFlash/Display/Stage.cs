@@ -4,10 +4,38 @@ using System.Text;
 
 namespace MonoFlash.Display
 {
-    class Stage : Sprite
+    public class Stage : Sprite
     {
-        public float stageWidth;
-        public float stageHeight;
+        public float StageWidth
+        {
+            get
+            {
+                if (GameMain.screenManager != null)
+                {
+                    return width / GameMain.screenManager.ScaleX;
+                }
+                return width;
+            }
+            set
+            {
+                width = value;
+            }
+        }
+        public float StageHeight
+        {
+            get
+            {
+                if (GameMain.screenManager != null)
+                {
+                    return height / GameMain.screenManager.ScaleY;
+                }
+                return height;
+            }
+            set
+            {
+                height = value;
+            }
+        }
 
         public Stage()
         {
