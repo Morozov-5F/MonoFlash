@@ -1,9 +1,7 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace DeathAboveUs.MonoFlash.Display
+namespace MonoFlash.Display
 {
     public class BitmapData
     {

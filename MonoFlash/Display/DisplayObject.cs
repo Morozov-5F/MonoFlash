@@ -3,16 +3,30 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using System.Diagnostics;
-using DeathAboveUs.MonoFlash.Events;
+using MonoFlash.Events;
 
-namespace DeathAboveUs.MonoFlash.Display
+namespace MonoFlash.Display
 {
     public class DisplayObject : EventDispatcher
     {
         public static Matrix TRANSFORM_ABSOLUTE = Matrix.Identity;
         protected float width, height;
+        
         protected Matrix transformMatrix;
         protected Matrix globalTransform;
+
+        public Matrix GlobalTransform
+        {
+            get 
+            {
+                return globalTransform;
+            }
+            set
+            {
+                globalTransform = value;
+            }
+        }   
+
         public float layerDepth;
         public Stage stage;
 
@@ -147,14 +161,14 @@ namespace DeathAboveUs.MonoFlash.Display
             DispatchEvent(new Event(Event.ENTER_FRAME));
         }        
 
-        public virtual bool HitTestPoint(Point point)
+        public virtual bool HitTestPoint(Vector2 point)
         {
             // Two variants: 1) pass always global point
             //               2) make transform on your own beforn calling HitTestPoint()
+            // Yet selected first variant
             var bounds = GetBounds();
-            BoundingBox bb = new BoundingBox(new Vector3(bounds.X, bounds.Y, 0), 
-                new Vector3(bounds.Z, bounds.W, 0));
-            return (bb.Contains(new Vector3(point.X, point.Y, 0)) == ContainmentType.Contains);
+            return (point.X >= bounds.X) && (point.X <= bounds.Z) && 
++                   (point.Y >= bounds.Y) && (point.Y <= bounds.W);
         }
 
         public virtual bool HitTestObject(DisplayObject obj)

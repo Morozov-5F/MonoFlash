@@ -1,9 +1,11 @@
 ﻿using System;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 using System.Diagnostics;
 
-namespace DeathAboveUs.MonoFlash.Display
+namespace MonoFlash.Display
 {
     public class Bitmap : DisplayObject
     {
