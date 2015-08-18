@@ -7,10 +7,18 @@ using System.Diagnostics;
 
 namespace MonoFlash.Display
 {
+    /// <summary>
+    /// A basic unit which can be displayed on screen. 
+    /// Cannot have children
+    /// </summary>
     public class Bitmap : DisplayObject
     {
         private BitmapData bitmapData;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="bitmapData">BitmapData to be rendered</param>
         public Bitmap(BitmapData bitmapData)
         { 
             this.bitmapData = bitmapData;
@@ -26,9 +34,9 @@ namespace MonoFlash.Display
             if (!DecomposeMatrix(ref newTransform, out pos, out rot, out scale))
             {
                 Debug.WriteLine("Error decomposing matrix");
+                return;
             }
             spriteBatch.Draw(bitmapData.texture, pos, null, Color.White,  rot, Vector2.Zero, scale, SpriteEffects.None, layerDepth);
-//            spriteBatch.Draw(bitmapData.texture, pos, , null, Vector2.Zero, rot, scale, Color.White, SpriteEffects.None, 0);
             base.Render(spriteBatch, transform);
         }
 

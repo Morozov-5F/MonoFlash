@@ -7,15 +7,26 @@ using MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
+    /// <summary>
+    /// Main purpose of this class is to be a container for other Sprites
+    /// or Bitmaps. It can have children and can handle them
+    /// </summary>
     public class Sprite : DisplayObject
     {
+        /// <summary>
+        /// Children list
+        /// </summary>
         public List<DisplayObject> children;
 
         public Sprite()
         {
             children = new List<DisplayObject>();
         }
-
+        /// <summary>
+        /// Attaches a child to sprite
+        /// </summary>
+        /// <param name="obj">DisplayObject to attach</param>
+        /// <returns>true, if child can be attached, flase otherwise</returns>
         public bool AddChild(DisplayObject obj)
         {
             if (obj.parent != null)
@@ -29,7 +40,11 @@ namespace MonoFlash.Display
             obj.DispatchEvent(new Event(Event.ADDED_TO_STAGE));
             return true;
         }
-
+        /// <summary>
+        /// Removes a child from sprite
+        /// </summary>
+        /// <param name="obj">DisplayObject to remove from children</param>
+        /// <returns>true, if child is detached successfully, false otherwise</returns>
         public bool RemoveChild(DisplayObject obj)
         {
             if (!children.Remove(obj))
