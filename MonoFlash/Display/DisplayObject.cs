@@ -9,15 +9,24 @@ namespace MonoFlash.Display
 {
     public class DisplayObject : EventDispatcher
     {
-        public static Matrix TRANSFORM_ABSOLUTE = Matrix.Identity;
+        public bool flippedX, flippedY;
+
+        public bool isClicked = false;
+        public static Matrix TRANSFORM_ABSOLUTE
+        {
+            get
+            {
+                return Matrix.Identity;
+            }
+        }
+
         protected float width, height;
-        
         protected Matrix transformMatrix;
         protected Matrix globalTransform;
 
         public Matrix GlobalTransform
         {
-            get 
+            get
             {
                 return globalTransform;
             }
@@ -25,7 +34,7 @@ namespace MonoFlash.Display
             {
                 globalTransform = value;
             }
-        }   
+        }
 
         public float layerDepth;
         public Stage stage;
@@ -79,9 +88,9 @@ namespace MonoFlash.Display
         {
             get
             {
-                Vector3 pos = Vector3.Zero, scale = Vector3.Zero;
-                Quaternion rotation;
-                if (!transformMatrix.Decompose(out scale, out rotation, out pos))
+                Vector2 pos = Vector2.Zero, scale = Vector2.Zero;
+                float rotation;
+                if (!DecomposeMatrix(ref transformMatrix, out pos, out rotation, out scale))
                 {
                     return 0;
                 }
@@ -92,15 +101,17 @@ namespace MonoFlash.Display
                 transformMatrix = Matrix.CreateScale(new Vector3(value, ScaleY, 1)) * 
                     Matrix.CreateRotationZ(MathHelper.ToRadians(Rotation)) * 
                     Matrix.CreateTranslation(X, Y, 0);
+
+                flippedX ^= (value < 0);
             }
         }
         public float ScaleY
         {
             get
             {
-                Vector3 pos = Vector3.Zero, scale = Vector3.Zero;
-                Quaternion rotation;
-                if (!transformMatrix.Decompose(out scale, out rotation, out pos))
+                Vector2 pos = Vector2.Zero, scale = Vector2.Zero;
+                float rotation;
+                if (!DecomposeMatrix(ref transformMatrix, out pos, out rotation, out scale))
                 {
                     return 0;
                 }
@@ -111,6 +122,8 @@ namespace MonoFlash.Display
                 transformMatrix = Matrix.CreateScale(new Vector3(ScaleX, value, 1)) * 
                     Matrix.CreateRotationZ(MathHelper.ToRadians(Rotation)) * 
                     Matrix.CreateTranslation(X, Y, 0);
+
+                flippedY ^= (value < 0);
             }
         }
         public float Width
@@ -137,7 +150,7 @@ namespace MonoFlash.Display
                 height = value;
             }
         }
-        public DisplayObject parent;
+        public Sprite parent;
 
         public DisplayObject()
         {
@@ -146,7 +159,8 @@ namespace MonoFlash.Display
                         Matrix.CreateTranslation(0, 0, 0);
             width = 0; height = 0;
             parent = null;
-            
+            globalTransform = DisplayObject.TRANSFORM_ABSOLUTE;
+
             AddEventListener(Event.ADDED_TO_STAGE, AddedToStage);
         }
 
@@ -155,20 +169,14 @@ namespace MonoFlash.Display
             stage = parent.stage;
         }
 
-        public virtual void Render(SpriteBatch spriteBatch, Matrix transform)
-        {
-            globalTransform = transform;
-            DispatchEvent(new Event(Event.ENTER_FRAME));
-        }        
-
         public virtual bool HitTestPoint(Vector2 point)
         {
             // Two variants: 1) pass always global point
             //               2) make transform on your own beforn calling HitTestPoint()
-            // Yet selected first variant
             var bounds = GetBounds();
+
             return (point.X >= bounds.X) && (point.X <= bounds.Z) && 
-+                   (point.Y >= bounds.Y) && (point.Y <= bounds.W);
+                (point.Y >= bounds.Y) && (point.Y <= bounds.W);
         }
 
         public virtual bool HitTestObject(DisplayObject obj)
@@ -176,11 +184,17 @@ namespace MonoFlash.Display
             var bounds1 = GetBounds();
             var bounds2 = obj.GetBounds();
             // TODO: Coordinates should be all transformed to global!
-            BoundingBox bb1 = new BoundingBox(new Vector3(bounds1.X, bounds1.Y, 0), 
-                                              new Vector3(bounds1.Z, bounds1.W, 0)),
-                        bb2 = new BoundingBox(new Vector3(bounds2.X, bounds2.Y, 0), 
-                                              new Vector3(bounds2.Z, bounds2.W, 0));
-            return false;
+            // Global first body
+            var topLeft1_g = this.LocalToGlobal(new Vector2(bounds1.X, bounds1.Y));
+            var botRight1_g = this.LocalToGlobal(new Vector2(bounds1.Z, bounds1.W));
+            // Global second body
+            var topLeft2_g = obj.LocalToGlobal(new Vector2(bounds2.X, bounds2.Y));
+            var botRight2_g = obj.LocalToGlobal(new Vector2(bounds2.Z, bounds2.W));
+            // Setup boundig boxes 
+            BoundingBox bb1 = new BoundingBox(new Vector3(topLeft1_g, 0), new Vector3(botRight1_g, 0));
+            BoundingBox bb2 = new BoundingBox(new Vector3(topLeft2_g, 0), new Vector3(botRight2_g, 0));
+                
+            return bb1.Intersects(bb2);
         }
 
         public virtual Vector2 GlobalToLocal(Vector2 point)
@@ -195,6 +209,12 @@ namespace MonoFlash.Display
             var pointMatrix = new Matrix(point.X, point.Y, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
             pointMatrix *= globalTransform;
             return new Vector2(pointMatrix.M11, pointMatrix.M12);
+        }
+
+        public virtual void Render(SpriteBatch spriteBatch, Matrix transform)
+        {
+            globalTransform = transform;
+            DispatchEvent(new Event(Event.ENTER_FRAME));
         }
 
         public virtual Vector4 GetBounds()

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MonoFlash.Events
 {
-    class EventDispatcher
+    public class EventDispatcher
     {
         public delegate void EventHandler(Event e);
 
