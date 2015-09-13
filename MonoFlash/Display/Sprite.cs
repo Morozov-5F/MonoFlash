@@ -7,8 +7,15 @@ using MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
+    /// <summary>
+    /// Main purpose of this class is to be a container for other Sprites
+    /// or Bitmaps. It can have children and can handle them
+    /// </summary>
     public class Sprite : DisplayObject
     {
+        /// <summary>
+        /// Children list
+        /// </summary>
         public List<DisplayObject> children;
         public bool visible;
 
@@ -100,7 +107,11 @@ namespace MonoFlash.Display
                 }
             }
         }
-
+        /// <summary>
+        /// Attaches a child to sprite
+        /// </summary>
+        /// <param name="obj">DisplayObject to attach</param>
+        /// <returns>true, if child can be attached, flase otherwise</returns>
         public bool AddChild(DisplayObject obj)
         {
             if (obj.parent != null)
@@ -114,6 +125,12 @@ namespace MonoFlash.Display
             return true;
         }
 
+        /// <summary>
+        /// Adds the child to sprite at given index
+        /// </summary>
+        /// <returns>true, if child can be attached, flase otherwise</returns>
+        /// <param name="obj">DisplayObject to attach</param>
+        /// <param name="index">Index to attach at</param>
         public bool AddChildAt(DisplayObject obj, int index)
         {
             if (obj.parent != null)
@@ -128,16 +145,32 @@ namespace MonoFlash.Display
             return true;
         }
 
+        /// <summary>
+        /// Gets the index of the child.
+        /// </summary>
+        /// <param name="obj">child to find</param>
+        /// <returns>The child index at children</returns>
         public int GetChildIndex(DisplayObject obj)
         {
             return children.IndexOf(obj);
         }
 
+        /// <summary>
+        /// Gets the child at index.
+        /// </summary>
+        /// <param name="index">Index.</param>
+        /// <returns>Child at given index</returns>
         public DisplayObject GetChildAt(int index)
         {
+            // TODO: exceptions
             return children[index];
         }
 
+        /// <summary>
+        /// Removes a child from sprite
+        /// </summary>
+        /// <param name="obj">DisplayObject to remove from children</param>
+        /// <returns>true, if child is detached successfully, false otherwise</returns>
         public bool RemoveChild(DisplayObject obj)
         {
             if (!children.Remove(obj))

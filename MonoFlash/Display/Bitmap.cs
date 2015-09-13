@@ -5,6 +5,10 @@ using System.Diagnostics;
 
 namespace MonoFlash.Display
 {
+    /// <summary>
+    /// A basic unit which can be displayed on screen. 
+    /// Cannot have children
+    /// </summary>
     public class Bitmap : DisplayObject
     {
         protected BitmapData bitmapData;
@@ -17,6 +21,10 @@ namespace MonoFlash.Display
             color = Color.White;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="bitmapData">BitmapData to be rendered</param>
         public Bitmap(BitmapData bitmapData)
         { 
             if (bitmapData == null)

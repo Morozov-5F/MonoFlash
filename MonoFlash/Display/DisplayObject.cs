@@ -7,6 +7,9 @@ using MonoFlash.Events;
 
 namespace MonoFlash.Display
 {
+    /// <summary>
+    /// A basic unit that handles all the transforms and coordinates translation
+    /// </summary>
     public class DisplayObject : EventDispatcher
     {
         public bool flippedX, flippedY;
@@ -19,11 +22,22 @@ namespace MonoFlash.Display
                 return Matrix.Identity;
             }
         }
-
+            
+        /// <summary>
+        /// Local width and height
+        /// </summary>
         protected float width, height;
+        /// <summary>
+        /// Object's transform matrix
+        /// </summary>
         protected Matrix transformMatrix;
+        /// <summary>
+        /// Parent's transform matrix
+        /// </summary>
         protected Matrix globalTransform;
-
+        /// <summary>
+        /// Gets and sets globalTransform of an object
+        /// </summary>
         public Matrix GlobalTransform
         {
             get
@@ -39,6 +53,9 @@ namespace MonoFlash.Display
         public float layerDepth;
         public Stage stage;
 
+        /// <summary>
+        /// X position, relative to parent
+        /// </summary>
         public float X
         { 
             get
@@ -52,6 +69,9 @@ namespace MonoFlash.Display
                     Matrix.CreateTranslation(value, Y, 0);
             }
         }
+        /// <summary>
+        /// Y position, relative to parent
+        /// </summary>
         public float Y
         {
             get
@@ -65,6 +85,9 @@ namespace MonoFlash.Display
                     Matrix.CreateTranslation(X, value, 0);
             }   
         }
+        /// <summary>
+        /// Rotation in degrees, relative to parent
+        /// </summary>
         public float Rotation
         {
             get
@@ -84,6 +107,9 @@ namespace MonoFlash.Display
                     Matrix.CreateTranslation(X, Y, 0);
             }
         }
+        /// <summary>
+        /// X scale, relative to parent
+        /// </summary>
         public float ScaleX
         {
             get
@@ -105,6 +131,9 @@ namespace MonoFlash.Display
                 flippedX ^= (value < 0);
             }
         }
+        /// <summary>
+        /// Y scale, relative to parent
+        /// </summary>
         public float ScaleY
         {
             get
@@ -126,6 +155,9 @@ namespace MonoFlash.Display
                 flippedY ^= (value < 0);
             }
         }
+        /// <summary>
+        /// Width of an object, without applying a parent transform
+        /// </summary>
         public float Width
         {
             get
@@ -138,6 +170,9 @@ namespace MonoFlash.Display
                 width = value;
             }
         }        
+        /// <summary>
+        /// Height of an object, without applying a parent transform
+        /// </summary>
         public float Height
         {
             get
@@ -150,6 +185,10 @@ namespace MonoFlash.Display
                 height = value;
             }
         }
+
+        /// <summary>
+        /// Parent Sprite
+        /// </summary>
         public Sprite parent;
 
         public DisplayObject()
@@ -169,6 +208,22 @@ namespace MonoFlash.Display
             stage = parent.stage;
         }
 
+        /// <summary>
+        /// Renders an object at screen with given transform matrix
+        /// </summary>
+        /// <param name="spriteBatch">SpriteBathch to draw</param>
+        /// <param name="transform">Transform matrix to apply</param>
+        public virtual void Render(SpriteBatch spriteBatch, Matrix transform)
+        {
+            globalTransform = transform;
+            DispatchEvent(new Event(Event.ENTER_FRAME));
+        }
+
+        /// <summary>
+        /// Checks if object contains a point
+        /// </summary>
+        /// <param name="point">point in object's local coordinates</param>
+        /// <returns>true, if object contains point, false otherwise</returns>
         public virtual bool HitTestPoint(Vector2 point)
         {
             // Two variants: 1) pass always global point
@@ -179,8 +234,15 @@ namespace MonoFlash.Display
                 (point.Y >= bounds.Y) && (point.Y <= bounds.W);
         }
 
+        /// <summary>
+        /// Checks if object intersects with other 
+        /// </summary>
+        /// <param name="obj">Displayobject to check intersection with</param>
+        /// <returns>true, if objects intersects, false otherwise</returns>
         public virtual bool HitTestObject(DisplayObject obj)
         {
+            throw new NotImplementedException("A HitTestObject is not implemented yet");
+
             var bounds1 = GetBounds();
             var bounds2 = obj.GetBounds();
             // TODO: Coordinates should be all transformed to global!
@@ -196,32 +258,44 @@ namespace MonoFlash.Display
                 
             return bb1.Intersects(bb2);
         }
-
+        /// <summary>
+        /// Transforms global point to local coordinates
+        /// </summary>
+        /// <param name="point">Point to transform</param>
+        /// <returns>Transformed point</returns>
         public virtual Vector2 GlobalToLocal(Vector2 point)
         {
             var pointMatrix = new Matrix(point.X, point.Y, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
             pointMatrix *= Matrix.Invert(globalTransform);
             return new Vector2(pointMatrix.M11, pointMatrix.M12);
         }
-
+        /// <summary>
+        /// Transforms local point to global coordinates
+        /// </summary>
+        /// <param name="point">Point to transform</param>
+        /// <returns>Transformed point</returns>
         public virtual Vector2 LocalToGlobal(Vector2 point)
         {
             var pointMatrix = new Matrix(point.X, point.Y, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1);
             pointMatrix *= globalTransform;
             return new Vector2(pointMatrix.M11, pointMatrix.M12);
         }
-
-        public virtual void Render(SpriteBatch spriteBatch, Matrix transform)
-        {
-            globalTransform = transform;
-            DispatchEvent(new Event(Event.ENTER_FRAME));
-        }
-
+        /// <summary>
+        /// Gets bounds of a DisplayObject.
+        /// </summary>
+        /// <returns>Vector4, generated in that way: (X:top-leftX, Y:top-leftY, Z:bot-rightX, W:bot-rightY)</returns>
         public virtual Vector4 GetBounds()
         {
             return Vector4.Zero;
         }
-
+        /// <summary>
+        /// Decomposes transform matrix to position, rotation and scale
+        /// </summary>
+        /// <param name="matrix">Matrix to decompose</param>
+        /// <param name="position">Resulting position</param>
+        /// <param name="rotation">Resulting rotation in radians</param>
+        /// <param name="scale">Resulting scale</param>
+        /// <returns>true if decomposition is possible, false otherwise</returns>
         protected bool DecomposeMatrix(ref Matrix matrix, out Vector2 position, out float rotation, out Vector2 scale)
         {
             Vector3 position3, scale3;
